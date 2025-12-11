@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Orbit</title>
+    <link rel="stylesheet" href="assets/css/material-icons.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f1014">
+    <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
+</head>
+<body class="dark">
+    <!-- Background Blobs -->
+    <div class="blob b1"></div>
+    <div class="blob b2"></div>
+
+    <div id="app">
+        <!-- App Viewer -->
+        <div id="app-viewer">
+            <iframe id="app-frame" name="app-frame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"></iframe>
+        </div>
+
+        <!-- Interface Layer -->
+        <div id="interface-layer">
+            
+            <div id="app-title">ORBIT</div>
+
+            <!-- Radial Menu SVG Layer -->
+            <div id="radial-menu-container">
+                <svg id="radial-menu-svg" viewBox="0 0 400 400">
+                    <!-- Paths injected by JS -->
+                </svg>
+                <div id="radial-icons">
+                    <!-- Icon overlays injected by JS -->
+                </div>
+            </div>
+
+
+
+            <!-- Corona Ring Design -->
+            <div class="corona-container">
+                <!-- Center Orbit Button -->
+                <div id="orbit-container" class="orbit-container">
+                    <button id="orbit-btn" class="orbit-button">
+                        <span id="orbit-icon" class="material-icons">public</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Bottom Controls -->
+            <div class="controls">
+                <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme">
+                    <span class="material-icons">light_mode</span>
+                </button>
+                <button id="add-app-btn" class="icon-btn" aria-label="Add App">
+                    <span class="material-icons">add</span>
+                </button>
+            </div>
+
+        <!-- Add/Edit Modal -->
+        <div id="app-modal" class="modal hidden">
+            <div class="modal-content">
+                <h2 id="modal-title">Add App</h2>
+                <form id="app-form">
+                    <div class="form-group">
+                        <label for="app-name">Name</label>
+                        <div class="gradient-input-wrapper">
+                            <input type="text" id="app-name" required placeholder="My App" autocomplete="off">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Color</label>
+                        <div class="color-picker-wrapper">
+                            <div class="color-option selected" data-color="#ffffff" style="background: #ffffff;"></div>
+                            <div class="color-option" data-color="#ff5252" style="background: #ff5252;"></div> <!-- Vivid Red -->
+                            <div class="color-option" data-color="#ff4081" style="background: #ff4081;"></div> <!-- Vivid Pink -->
+                            <div class="color-option" data-color="#e040fb" style="background: #e040fb;"></div> <!-- Vivid Purple -->
+                            <div class="color-option" data-color="#7c4dff" style="background: #7c4dff;"></div> <!-- Vivid Deep Purple -->
+                            <div class="color-option" data-color="#536dfe" style="background: #536dfe;"></div> <!-- Vivid Indigo -->
+                            <div class="color-option" data-color="#448aff" style="background: #448aff;"></div> <!-- Vivid Blue -->
+                            <div class="color-option" data-color="#00b0ff" style="background: #00b0ff;"></div> <!-- Vivid Light Blue -->
+                            <div class="color-option" data-color="#00e5ff" style="background: #00e5ff;"></div> <!-- Vivid Cyan -->
+                            <div class="color-option" data-color="#1de9b6" style="background: #1de9b6;"></div> <!-- Vivid Teal -->
+                            <div class="color-option" data-color="#00e676" style="background: #00e676;"></div> <!-- Vivid Green -->
+                            <div class="color-option" data-color="#76ff03" style="background: #76ff03;"></div> <!-- Vivid Light Green -->
+                            <div class="color-option" data-color="#c6ff00" style="background: #c6ff00;"></div> <!-- Vivid Lime -->
+                            <div class="color-option" data-color="#ffea00" style="background: #ffea00;"></div> <!-- Vivid Yellow -->
+                            <div class="color-option" data-color="#ffc400" style="background: #ffc400;"></div> <!-- Vivid Amber -->
+                            <div class="color-option" data-color="#ff9100" style="background: #ff9100;"></div> <!-- Vivid Orange -->
+                            <div class="color-option" data-color="#ff3d00" style="background: #ff3d00;"></div> <!-- Vivid Deep Orange -->
+                            <div class="color-option" data-color="#78909c" style="background: #78909c;"></div> <!-- Vivid Blue Grey -->
+                        </div>
+                        <input type="hidden" id="app-color" value="#ffffff">
+                    </div>
+
+                    <div class="form-group" id="file-input-group">
+                        <label for="app-file">HTML File</label>
+                        <div class="file-upload-wrapper">
+                            <input type="file" id="app-file" accept=".html,.htm" class="hidden-input">
+                            <label for="app-file" class="file-upload-label gradient-btn-outline">
+                                <span class="material-icons">upload_file</span>
+                                <span id="file-name-display">Select File...</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn-text" id="cancel-modal-btn">Cancel</button>
+                        <button type="submit" class="btn-primary gradient-btn" id="save-app-btn">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Icon Picker Modal Removed -->
+
+        <!-- Confirm Modal -->
+        <div id="confirm-modal" class="modal hidden">
+            <div class="modal-content">
+                <h2 id="confirm-title">Confirm</h2>
+                <p id="confirm-message">Are you sure?</p>
+                <div class="modal-actions">
+                    <button type="button" class="btn-text" id="confirm-no">Cancel</button>
+                    <button type="button" class="btn-primary gradient-btn" id="confirm-yes">Confirm</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Context Menu -->
+        <div id="context-menu" class="context-menu">
+            <button id="ctx-edit" class="ctx-item">
+                <span class="material-icons">edit</span> Edit
+            </button>
+            <button id="ctx-delete" class="ctx-item delete">
+                <span class="material-icons">delete</span> Delete
+            </button>
+        </div>
+    </div>
+
+    <script type="module" src="js/app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => {
+                    console.log('SW registered', reg);
+                    
+                    // Check for updates immediately and every 60 seconds
+                    reg.update();
+                    setInterval(() => reg.update(), 60000);
+                    
+                    // Listen for new SW waiting to activate
+                    reg.addEventListener('updatefound', () => {
+                        const newWorker = reg.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // New version available - reload to get it
+                                console.log('New version available, reloading...');
+                                window.location.reload();
+                            }
+                        });
+                    });
+                })
+                .catch(err => console.error('SW failed', err));
+            
+            // Also reload if the controlling SW changes (e.g., skipWaiting was called)
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                window.location.reload();
+            });
+        }
+    </script>
+</body>
+</html>

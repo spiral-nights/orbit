@@ -1,0 +1,661 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap');
+
+:root {
+    /* Dark Mode (Default) */
+    --bg-color: #000;
+    --text-color: #ffffff;
+
+    /* Gradient Accents (kept for other elements if needed) */
+    --gradient-1: linear-gradient(135deg, #00c6ff, #0072ff);
+    /* Blue Cyan */
+    --gradient-2: linear-gradient(135deg, #f093fb, #f5576c);
+    /* Pink Purple */
+    --gradient-3: linear-gradient(135deg, #4facfe, #00f2fe);
+    /* Blue */
+
+    --surface-color: #1a1b20;
+    --surface-border: rgba(255, 255, 255, 0.1);
+
+    --menu-segment-bg: rgba(30, 32, 40, 0.95);
+    --menu-segment-hover: #2a2c35;
+
+    /* Corona Ring Design Variables */
+    --cr-bg: #000;
+    --cr-ring-color: #8fd4ff;
+    /* Slightly more blue */
+    --cr-disk-color: #000;
+    --cr-icon-color: #8fd4ff;
+
+    /* Title Glow Colors (Dark Mode Blue) - Boosted Intensity */
+    --title-glow-color-1: rgba(0, 198, 255, 0.8);
+    --title-glow-color-2: rgba(0, 198, 255, 0.5);
+    --title-glow-strong-1: rgba(0, 198, 255, 1.0);
+    --title-glow-strong-2: rgba(0, 198, 255, 0.7);
+}
+
+body.light {
+    --bg-color: #f8f9fa;
+    --text-color: #333;
+
+    --surface-color: #ffffff;
+    --surface-border: rgba(0, 0, 0, 0.1);
+
+    --menu-segment-bg: rgba(255, 255, 255, 0.95);
+    --menu-segment-hover: #f7f7f7;
+
+    /* Corona Ring Design Variables */
+    --cr-bg: #f8f9fa;
+    --cr-ring-color: #ffb700;
+    /* Gold Ring */
+    --cr-disk-color: #fff;
+    --cr-icon-color: #ffb700;
+
+    /* Title Glow Colors (Light Mode) - White with colorful glow */
+    --title-color: white;
+    --title-glow-color-1: rgba(255, 183, 0, 0.8);
+    --title-glow-color-2: rgba(255, 120, 0, 0.6);
+    --title-glow-strong-1: rgba(255, 183, 0, 1.0);
+    --title-glow-strong-2: rgba(255, 80, 0, 0.4);
+}
+
+body {
+    margin: 0;
+    width: 100vw;
+    height: 100vh;
+    background: var(--cr-bg);
+    /* Use new variable for background */
+    color: var(--text-color);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    overflow: hidden;
+    transition: background 0.5s;
+    /* Kept for general background color transition */
+}
+
+/* Background Blobs (Removed) */
+
+/* Interface Layer */
+#interface-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+#app-title {
+    position: absolute;
+    /* Use padding-top logic with calc to ensure it sits below notch/status bar */
+    top: calc(8% + env(safe-area-inset-top));
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Orbitron', sans-serif;
+    /* Increased minimum font size for mobile visibility */
+    font-size: clamp(2.5rem, 8vw, 5rem);
+    font-weight: 900;
+    letter-spacing: 0.5rem;
+    color: var(--text-color);
+    z-index: 4;
+    pointer-events: none;
+    user-select: none;
+    will-change: opacity, text-shadow;
+    /* Hint to browser for smoother animation */
+
+    /* Returning to Home: Wait 0.25s (app fade) then fade in fast (0.2s) */
+    transition: opacity 0.2s ease 0.25s, transform 0.2s ease 0.25s, visibility 0s 0.25s;
+    animation: title-glow 4s infinite ease-in-out;
+}
+
+#app.app-active #app-title {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-50%) translateY(-20px);
+    /* Going to App: Fade out fast (0.2s) immediately */
+    transition: opacity 0.2s ease 0s, transform 0.2s ease 0s, visibility 0s 0.2s;
+}
+
+@keyframes title-glow {
+
+    0%,
+    100% {
+        text-shadow: 0 0 15px var(--title-glow-color-1), 0 0 30px var(--title-glow-color-2);
+        opacity: 0.9;
+    }
+
+    50% {
+        text-shadow: 0 0 25px var(--title-glow-strong-1), 0 0 50px var(--title-glow-strong-2);
+        opacity: 1;
+    }
+}
+
+/* Light mode: White title with colorful glow */
+body.light #app-title {
+    color: white;
+    text-shadow:
+        /* Dark outline for visibility */
+        0 1px 2px rgba(0, 0, 0, 0.3),
+        0 2px 4px rgba(0, 0, 0, 0.2),
+        /* Orange/gold glow */
+        0 0 15px rgba(255, 183, 0, 1),
+        0 0 30px rgba(255, 150, 0, 0.8),
+        0 0 50px rgba(255, 120, 0, 0.5);
+}
+
+/* Radial Menu */
+#radial-menu-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    height: 400px;
+    z-index: 5;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    /* Prevent clicks on children */
+    transition: opacity 0.3s, visibility 0s 0.3s;
+    /* Delay visibility hide until opacity fade is done */
+}
+
+#radial-menu-container.open {
+    opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
+    transition: opacity 0.3s;
+    /* Instant visibility show */
+}
+
+#radial-menu-svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+.menu-segment {
+    fill: var(--menu-segment-bg);
+    stroke: var(--surface-border);
+    stroke-width: 1px;
+    cursor: pointer;
+    transition: fill 0.2s;
+    pointer-events: auto;
+    transform-origin: center;
+    transform-box: fill-box;
+    -webkit-tap-highlight-color: transparent;
+    /* Remove mobile tap box */
+}
+
+.menu-segment:hover {
+    fill: var(--menu-segment-hover);
+    filter: brightness(1.2);
+}
+
+#radial-icons {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.segment-text {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    text-align: center;
+    width: 100px;
+    display: flex;
+    justify-content: center;
+}
+
+.app-label-text {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    pointer-events: none;
+    user-select: none;
+    /* Prevent text selection */
+    -webkit-user-select: none;
+}
+
+/* Corona Ring Design */
+.corona-container {
+    position: absolute;
+    /* To position correctly with orbit-container */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: var(--cr-ring-color);
+    box-shadow: 0 0 20px var(--cr-ring-color);
+    /* Glow */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+    pointer-events: auto;
+    /* Enable clicks */
+    /* Position/size uses bouncy curve for docking, colors change instantly to match title */
+    transition: top 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+        left 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+        width 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+        height 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+        transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.corona-container.docked {
+    top: calc(100% - 90px);
+    /* Aligns vertically with controls */
+    left: 30px;
+    /* Positions to the bottom-left */
+    width: 70px;
+    height: 70px;
+    /* Shrink ring */
+    transform: translate(0, 0);
+    /* Reset transform since we position explicitly */
+    box-shadow: 0 0 10px var(--cr-ring-color);
+    /* Reduce glow */
+}
+
+.orbit-container {
+    /* Acts as the inner disk */
+    width: 114px;
+    height: 114px;
+    /* 3px border essentially */
+    border-radius: 50%;
+    background: var(--cr-disk-color);
+    border: none;
+    /* No extra border needed */
+    position: static;
+    /* Override absolute positioning */
+    transform: none;
+    /* Override transform from original .orbit-container */
+    box-shadow: none;
+    /* Remove default shadow */
+    /* Only transition size, not colors */
+    transition: width 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+        height 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    pointer-events: auto;
+}
+
+.corona-container.docked .orbit-container {
+    /* Docked state for the inner disk */
+    width: 60px;
+    /* Smaller when docked */
+    height: 60px;
+}
+
+.orbit-button {
+    /* No background or border, just holds the icon */
+    background: none;
+    border: none;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--cr-icon-color);
+    /* Icon color from design variables */
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+    /* Prevent iOS callout menu */
+    /* No color transition - matches title's instant CSS variable change */
+}
+
+/* Adjustments for docked state */
+.corona-container.docked .orbit-button {
+    width: 100%;
+    height: 100%;
+}
+
+.corona-container.docked .orbit-button .material-icons {
+    font-size: 24px;
+}
+
+/* Remove glow from original orbit-button */
+.orbit-button::before {
+    content: none;
+}
+
+.orbit-button .material-icons {
+    background: none;
+    -webkit-background-clip: unset;
+    -webkit-text-fill-color: unset;
+    color: inherit;
+    /* Use inherited color */
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Controls */
+.controls {
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    display: flex;
+    gap: 15px;
+    z-index: 100;
+    pointer-events: auto;
+}
+
+.icon-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--surface-color);
+    color: var(--text-color);
+    border: 1px solid var(--surface-border);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.icon-btn:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.icon-btn .material-icons {
+    background: var(--gradient-2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* App Viewer */
+#app-viewer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+    /* Fast fade out */
+    background: var(--bg-color);
+    z-index: 1;
+}
+
+#app-viewer.active {
+    opacity: 1;
+    pointer-events: auto;
+    transition: opacity 0.5s ease 0.3s;
+    /* Open: Delay appearance until title is gone */
+}
+
+#app-frame {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* --- Modals & Forms --- */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+    /* Enable interaction */
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: var(--surface-color);
+    padding: 30px;
+    border-radius: 24px;
+    width: 90%;
+    max-width: 400px;
+    border: 1px solid var(--surface-border);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+.modal-content h2 {
+    color: var(--text-color);
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.modal-content p {
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    color: var(--text-color);
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    opacity: 0.9;
+}
+
+/* Gradient Input Style */
+.gradient-input-wrapper {
+    position: relative;
+    background: linear-gradient(135deg, #00c6ff, #0072ff);
+    padding: 2px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 198, 255, 0.1);
+}
+
+input[type="text"] {
+    width: 100%;
+    background: #0f1014;
+    /* Always dark input background for contrast with neon border */
+    border: none;
+    padding: 12px 16px;
+    border-radius: 10px;
+    color: white;
+    /* Always white text in input */
+    font-size: 1rem;
+    outline: none;
+    box-sizing: border-box;
+    display: block;
+}
+
+input[type="text"]:focus {
+    background: #1a1b20;
+}
+
+/* Color Picker */
+.color-picker-wrapper {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+    justify-items: center;
+}
+
+.color-option {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.color-option:hover {
+    transform: scale(1.2);
+}
+
+.color-option.selected {
+    border-color: var(--text-color);
+    /* Adaptive border color */
+    box-shadow: 0 0 12px rgba(128, 128, 128, 0.8);
+    transform: scale(1.3);
+}
+
+/* Context Menu */
+.context-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: var(--surface-color);
+    border: 1px solid var(--surface-border);
+    border-radius: 12px;
+    padding: 5px;
+    z-index: 9999;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+    min-width: 160px;
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.95);
+    transition: opacity 0.1s, transform 0.1s;
+    display: block;
+}
+
+.context-menu.visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: scale(1);
+}
+
+.ctx-item {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    width: 100%;
+    text-align: left;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    border-radius: 8px;
+    font-size: 0.95rem;
+}
+
+.ctx-item:hover {
+    background: rgba(128, 128, 128, 0.1);
+}
+
+.ctx-item .material-icons {
+    font-size: 20px;
+    opacity: 0.8;
+}
+
+/* Hidden File Input */
+.hidden-input {
+    display: none !important;
+}
+
+.file-upload-label {
+    margin: 0;
+}
+
+/* Gradient Outline Buttons */
+.gradient-btn-outline {
+    width: 100%;
+    background: var(--surface-color);
+    color: var(--text-color);
+    border: double 1px transparent;
+    border-radius: 10px;
+    background-image: linear-gradient(var(--surface-color), var(--surface-color)), var(--gradient-1);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    padding: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: transform 0.2s;
+    box-sizing: border-box;
+}
+
+.gradient-btn-outline:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.1);
+}
+
+.gradient-btn {
+    background: var(--gradient-1);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.gradient-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(0, 198, 255, 0.4);
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.btn-text {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    opacity: 0.7;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.btn-text:hover {
+    opacity: 1;
+}
+
+/* --- Adaptive Light Mode Fix (Option 2) --- */
+
+/* Force dark, crisp text in Light Mode */
+body.light .app-label-text {
+    color: #1a1b20 !important;
+    text-shadow: none !important;
+    font-weight: 800;
+}
+
+/* Use the border (stroke) to show color in Light Mode */
+body.light .menu-segment {
+    fill: rgba(255, 255, 255, 0.9);
+    /* Opaque white */
+    stroke-width: 4px;
+    /* Thick colored border */
+    /* Stroke color is set inline by JS */
+}
+
+body.light .menu-segment:hover {
+    fill: #ffffff;
+    filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.15));
+}
